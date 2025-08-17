@@ -1,0 +1,8 @@
+[build]
+  publish = "public"
+  command = "pip install -r requirements.txt && python scraper/scrape_health.py --out public/health.json --max-pages ${MAX_PAGES:-50}"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+  MAX_PAGES = "50"
+  CRAWL_DELAY = "0.4"

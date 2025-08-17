@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>certus — health search</title>
+</head>
+<body>
+  <h1>Certus Health</h1>
+  <input id="q" type="search" placeholder="Search health..." />
+  <button onclick="search()">Search</button>
+  <pre id="out"></pre>
+<script>
+async function search(){
+  let q=document.getElementById('q').value.toLowerCase();
+  let data=await fetch('health.json').then(r=>r.json());
+  let res=data.filter(p=>p.title.toLowerCase().includes(q)||p.summary.toLowerCase().includes(q));
+  document.getElementById('out').textContent=JSON.stringify(res,null,2);
+}
+</script>
+</body>
+</html>
