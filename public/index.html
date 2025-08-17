@@ -1,21 +1,164 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>certus — health search</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>certus — health search</title>
+<style>
+  :root {
+    --bg: #f9fafb;
+    --fg: #111;
+    --muted: #666;
+    --line: #ddd;
+    --primary: #2563eb;
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0f12;
+      --fg: #e6e7e9;
+      --muted: #a3a8b0;
+      --line: #232932;
+      --primary: #3b82f6;
+    }
+  }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    padding: 16px 24px;
+    font-weight: 700;
+    font-size: 20px;
+    text-transform: lowercase;
+  }
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+  }
+  .quote {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .desc a { color: var(--primary); text-decoration: none; }
+  .desc a:hover { text-decoration: underline; }
+  .search-bar {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .search-bar input {
+    flex: 1;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    outline: none;
+    background: transparent;
+    color: var(--fg);
+  }
+  .search-bar button {
+    border: none;
+    background: var(--primary);
+    color: white;
+    padding: 0 18px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .results {
+    width: 100%;
+    max-width: 700px;
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    background: var(--bg);
+  }
+  .card a {
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--primary);
+    text-decoration: none;
+  }
+  .card a:hover { text-decoration: underline; }
+  .summary {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .source {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
 </head>
 <body>
-  <h1>Certus Health</h1>
-  <input id="q" type="search" placeholder="Search health..." />
-  <button onclick="search()">Search</button>
-  <pre id="out"></pre>
+<header>certus</header>
+<main>
+  <div class="quote">The most reliable search engine in the world</div>
+  <div class="desc">The first search engine to only use hand-picked sources — <a href="#">view our sources</a>.</div>
+  <div class="search-bar">
+    <input id="q" type="search" placeholder="Search health…" autofocus>
+    <button onclick="search()">Search</button>
+  </div>
+  <div class="results" id="results"></div>
+</main>
+
 <script>
-async function search(){
-  let q=document.getElementById('q').value.toLowerCase();
-  let data=await fetch('health.json').then(r=>r.json());
-  let res=data.filter(p=>p.title.toLowerCase().includes(q)||p.summary.toLowerCase().includes(q));
-  document.getElementById('out').textContent=JSON.stringify(res,null,2);
+let data = [];
+async function loadData(){
+  data = await fetch('health.json').then(r=>r.json());
+}
+loadData();
+
+function search(){
+  const q = document.getElementById('q').value.toLowerCase();
+  const results = document.getElementById('results');
+  results.innerHTML = '';
+  const filtered = data.filter(p =>
+    p.title.toLowerCase().includes(q) || p.summary.toLowerCase().includes(q)
+  );
+  if(filtered.length === 0){
+    results.innerHTML = '<div>No results found.</div>';
+    return;
+  }
+  for(const p of filtered){
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <a href="${p.url}" target="_blank" rel="noopener">${p.title}</a>
+      <div class="summary">${p.summary || ''}</div>
+      <div class="source">NHS</div>
+    `;
+    results.appendChild(card);
+  }
 }
 </script>
 </body>
